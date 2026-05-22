@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { href: '/products?category=bottoms', label: '下裝' },
   { href: '/products?category=outerwear', label: '外套' },
   { href: '/products?category=accessories', label: '配件' },
+  { href: '/knowledge', label: '專業知識區' },
 ];
 
 export default function Navbar({ logoUrl }: NavbarProps) {

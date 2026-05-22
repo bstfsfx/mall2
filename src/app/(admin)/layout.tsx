@@ -43,6 +43,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     { href: '/admin/categories', label: '📁 分類管理' },
     { href: '/admin/orders', label: '📦 訂單管理' },
     { href: '/admin/users', label: '👥 會員管理' },
+    { href: '/admin/articles', label: '📝 文章管理' },
     { href: '/admin/settings', label: '⚙️ 網站設定' },
   ];
 
