@@ -31,3 +31,11 @@ LAI ANDY
 請你幫我在後台寫出一個SMTP發信的管理模組，根據購物商城的標準，在適合的狀態發信給消費者和指定的系統管理者。
 同時發信的內容模版，資訊要很完整、並且模版是有經過設計與網站風格相似。
 最後完成請再給我每個狀態發信的角色資訊進行說明.
+
+
+
+請根據此系統，提供資安的安全性。
+同時請你說明處理的項目及防護的項目。
+
+take reference of the features in attache image and add these features on admin dashboard
+

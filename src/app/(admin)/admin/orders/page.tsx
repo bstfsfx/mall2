@@ -34,6 +34,9 @@ export default function AdminOrders() {
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  // Modal state
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -65,9 +68,6 @@ export default function AdminOrders() {
 
       if (fetchErr) throw fetchErr;
 
-      // We need to fetch email from auth.users, but Profiles doesn't store email.
-      // We can just rely on profiles.name. To get email, we can query profiles which doesn't have email. That's fine,
-      // we can display their name or user ID. Let's cast profiles name correctly.
       setOrders((data as any) ?? []);
     } catch (err: any) {
       console.error(err);
@@ -94,6 +94,12 @@ export default function AdminOrders() {
       setOrders(prev =>
         prev.map(o => (o.id === orderId ? { ...o, status: newStatus as any } : o))
       );
+      
+      // Update selected order if open
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status: newStatus as any });
+      }
+      
     } catch (err: any) {
       console.error(err);
       alert(`更新狀態失敗: ${err.message}`);
@@ -103,6 +109,18 @@ export default function AdminOrders() {
   const filteredOrders = statusFilter === 'all'
     ? orders
     : orders.filter(o => o.status === statusFilter);
+    
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'pending': return styles.statusPending;
+      case 'paid': return styles.statusPaid;
+      case 'processing': return styles.statusProcessing;
+      case 'shipped': return styles.statusShipped;
+      case 'completed': return styles.statusCompleted;
+      case 'cancelled': return styles.statusCancelled;
+      default: return '';
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -132,46 +150,102 @@ export default function AdminOrders() {
 
       {error && <div className={styles.error}>{error}</div>}
 
-      {/* Orders List */}
-      {loading ? (
-        <div className={styles.loading}>
-          <div className="spinner" />
-        </div>
-      ) : filteredOrders.length === 0 ? (
-        <p className={styles.empty}>找不到符合狀態的訂單</p>
-      ) : (
-        <div className={styles.orderList}>
-          {filteredOrders.map(order => (
-            <div key={order.id} className={`glass ${styles.orderCard}`}>
-              <div className={styles.orderHeader}>
-                <div>
-                  <h4 className={styles.orderId}>訂單編號: {order.id.toUpperCase()}</h4>
-                  <p className={styles.orderMeta}>
-                    🕒 下單時間: {new Date(order.created_at).toLocaleString('zh-TW')} | 👤 顧客: {order.profiles?.name ?? '未知'}
-                  </p>
-                </div>
-                <div className={styles.statusSelect}>
-                  <label htmlFor={`status-${order.id}`} style={{ marginRight: '0.5rem', display: 'inline', fontSize: '0.82rem' }}>變更狀態：</label>
-                  <select
-                    id={`status-${order.id}`}
-                    value={order.status}
-                    onChange={e => handleStatusChange(order.id, e.target.value)}
-                    className={styles.select}
-                  >
-                    <option value="pending">待付款</option>
-                    <option value="paid">已付款</option>
-                    <option value="processing">處理中</option>
-                    <option value="shipped">已出貨</option>
-                    <option value="completed">已完成</option>
-                    <option value="cancelled">已取消</option>
-                  </select>
-                </div>
-              </div>
+      {/* Orders Table */}
+      <div className={`glass ${styles.tableCard}`}>
+        <h3 className={styles.cardTitle}>訂單交易清單</h3>
+        
+        {loading ? (
+          <div className={styles.loading}>
+            <div className="spinner" />
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <p className={styles.empty}>找不到符合狀態的訂單</p>
+        ) : (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>訂單編號</th>
+                  <th>訂購日期</th>
+                  <th>收件人姓名</th>
+                  <th>應付總額</th>
+                  <th>付款方式</th>
+                  <th>訂單狀態</th>
+                  <th>管理操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.map(order => {
+                  const dateStr = new Date(order.created_at);
+                  const formattedDate = `${dateStr.getFullYear()}/${String(dateStr.getMonth()+1).padStart(2, '0')}/${String(dateStr.getDate()).padStart(2, '0')} ${String(dateStr.getHours()).padStart(2, '0')}:${String(dateStr.getMinutes()).padStart(2, '0')}`;
+                  
+                  return (
+                    <tr key={order.id}>
+                      <td><span className={styles.orderId}>VIBE-{order.id.split('-')[0].toUpperCase()}</span></td>
+                      <td><span className={styles.dateText}>{formattedDate}</span></td>
+                      <td>{order.profiles?.name ?? 'Test User'}</td>
+                      <td><span className={styles.amountText}>NT$ {Number(order.total_amount).toLocaleString()}</span></td>
+                      <td><span className={styles.paymentText}>貨到付款</span></td>
+                      <td>
+                        <span className={`${styles.statusBadge} ${getStatusBadgeClass(order.status)}`}>
+                          {order.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>
+                        <button className={styles.editBtn} onClick={() => setSelectedOrder(order)}>
+                          查看與編輯
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-              <div className={styles.orderBody}>
-                {/* Items list */}
+      {/* Order Detail Modal */}
+      {selectedOrder && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedOrder(null)}>
+          <div className={`glass ${styles.formCard}`} onClick={e => e.stopPropagation()}>
+            <div className={styles.formHeader}>
+              <h3>📝 訂單詳情 (VIBE-{selectedOrder.id.split('-')[0].toUpperCase()})</h3>
+              <button className={styles.closeModal} onClick={() => setSelectedOrder(null)}>✕</button>
+            </div>
+            <hr className="gold-divider" style={{ margin: '1rem 0' }} />
+            
+            <div className={styles.orderDetailSection}>
+              <h4>變更訂單狀態</h4>
+              <select
+                value={selectedOrder.status}
+                onChange={e => handleStatusChange(selectedOrder.id, e.target.value)}
+                className={styles.select}
+              >
+                <option value="pending">待付款 (PENDING)</option>
+                <option value="paid">已付款 (PAID)</option>
+                <option value="processing">處理中 (PROCESSING)</option>
+                <option value="shipped">已出貨 (SHIPPED)</option>
+                <option value="completed">已完成 (COMPLETED)</option>
+                <option value="cancelled">已取消 (CANCELLED)</option>
+              </select>
+            </div>
+            
+            <div className={styles.orderDetailSection}>
+              <h4>顧客與配送資訊</h4>
+              <div className={styles.infoBlock}>
+                <p><strong>顧客姓名：</strong> {selectedOrder.profiles?.name ?? 'Test User'}</p>
+                <p><strong>下單時間：</strong> {new Date(selectedOrder.created_at).toLocaleString('zh-TW')}</p>
+                <p><strong>付款方式：</strong> 貨到付款</p>
+                <p style={{ marginTop: '0.5rem' }}><strong>配送地址：</strong><br/>{selectedOrder.shipping_address || '無收件人資訊'}</p>
+              </div>
+            </div>
+
+            <div className={styles.orderDetailSection}>
+              <h4>訂購商品清單</h4>
+              <div className={styles.infoBlock}>
                 <div className={styles.items}>
-                  {order.order_items?.map(item => (
+                  {selectedOrder.order_items?.map(item => (
                     <div key={item.id} className={styles.item}>
                       <div className={styles.itemDetails}>
                         <p className={styles.itemName}>{item.products?.name ?? '未知商品'}</p>
@@ -185,20 +259,20 @@ export default function AdminOrders() {
                     </div>
                   ))}
                 </div>
-
-                {/* Shipping & Payment summary */}
-                <div className={styles.summary}>
-                  <p className={styles.shippingAddress}>
-                    <strong>📍 配送資訊:</strong> {order.shipping_address || '無收件人資訊'}
-                  </p>
-                  <div className={styles.amountWrap}>
-                    <span className={styles.totalLabel}>實收總額</span>
-                    <span className={styles.totalAmt}>NT$ {Number(order.total_amount).toLocaleString()}</span>
-                  </div>
+                <hr style={{ border: 'none', borderTop: '1px dashed var(--border-subtle)', margin: '1rem 0' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <strong>實收總額</strong>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>
+                    NT$ {Number(selectedOrder.total_amount).toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
-          ))}
+
+            <button className="btn btn-gold" style={{ width: '100%', marginTop: '1rem' }} onClick={() => setSelectedOrder(null)}>
+              完成
+            </button>
+          </div>
         </div>
       )}
     </div>

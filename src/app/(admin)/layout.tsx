@@ -37,14 +37,51 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  const menuItems = [
-    { href: '/admin', label: '📊 數據總覽' },
-    { href: '/admin/products', label: '👕 商品管理' },
-    { href: '/admin/categories', label: '📁 分類管理' },
-    { href: '/admin/orders', label: '📦 訂單管理' },
-    { href: '/admin/users', label: '👥 會員管理' },
-    { href: '/admin/articles', label: '📝 文章管理' },
-    { href: '/admin/settings', label: '⚙️ 網站設定' },
+  const menuGroups = [
+    {
+      title: '總覽',
+      items: [
+        { href: '/admin', label: '📊 儀表板' },
+      ],
+    },
+    {
+      title: '商品',
+      items: [
+        { href: '/admin/products', label: '🍰 商品管理' },
+        { href: '/admin/categories', label: '📁 分類管理' },
+      ],
+    },
+    {
+      title: '詢價 / 會員',
+      items: [
+        { href: '/admin/inquiries', label: '📧 詢價單管理' },
+        { href: '/admin/orders', label: '📦 訂單管理' },
+        { href: '/admin/users', label: '👤 會員管理' },
+      ],
+    },
+    {
+      title: '內容 CMS',
+      items: [
+        { href: '/admin/banners', label: '🖼️ Banner' },
+        { href: '/admin/articles', label: '📝 文章 / FAQ' },
+      ],
+    },
+    {
+      title: '行銷',
+      items: [
+        { href: '/admin/discounts', label: '🎫 折扣碼' },
+        { href: '/admin/messages', label: '💬 客服訊息' },
+      ],
+    },
+    {
+      title: '系統',
+      items: [
+        { href: '/admin/settings', label: '⚙️ 系統設定' },
+        { href: '/admin/users', label: '👥 使用者' },
+        { href: '/admin/roles', label: '🔐 角色 / 權限' },
+        { href: '/admin/logs', label: '📋 操作紀錄' },
+      ],
+    },
   ];
 
   return (
@@ -55,14 +92,19 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           <Link href="/" className={styles.logoText}>mall2 <span className={styles.adminBadge}>ADMIN</span></Link>
         </div>
         <nav className={styles.nav}>
-          {menuItems.map(item => {
-            const active = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
-            return (
-              <Link key={item.href} href={item.href} className={`${styles.navLink} ${active ? styles.navActive : ''}`}>
-                {item.label}
-              </Link>
-            );
-          })}
+          {menuGroups.map(group => (
+            <div key={group.title} className={styles.navSection}>
+              <div className={styles.navSectionTitle}>{group.title}</div>
+              {group.items.map(item => {
+                const active = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
+                return (
+                  <Link key={item.href} href={item.href} className={`${styles.navLink} ${active ? styles.navActive : ''}`}>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
         <div className={styles.sidebarFooter}>
           <p className={styles.email}>{user.email}</p>
@@ -75,7 +117,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Main Content */}
       <div className={styles.main}>
         <header className={styles.header}>
-          <h2>{menuItems.find(i => pathname === i.href || (i.href !== '/admin' && pathname.startsWith(i.href)))?.label.substring(3) || '管理后台'}</h2>
+          <h2>
+            {menuGroups.flatMap(g => g.items).find(i => pathname === i.href || (i.href !== '/admin' && pathname.startsWith(i.href)))?.label.substring(3) || '管理后台'}
+          </h2>
           <Link href="/" className="btn btn-outline-gold btn-sm" style={{ padding: '0.4rem 1rem', fontSize: '0.82rem' }}>
             🏪 返回前台首頁
           </Link>
