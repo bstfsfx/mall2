@@ -38,7 +38,7 @@ async function getRelated(categoryId: string | null, excludeId: string): Promise
     .eq('category_id', categoryId)
     .neq('id', excludeId)
     .limit(3);
-  return (data ?? []) as Article[];
+  return (data ?? []) as unknown as Article[];
 }
 
 export async function generateMetadata({

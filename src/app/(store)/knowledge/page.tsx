@@ -51,7 +51,7 @@ async function getArticles(categorySlug?: string): Promise<Article[]> {
   }
 
   const { data } = await query;
-  return (data ?? []) as Article[];
+  return (data ?? []) as unknown as Article[];
 }
 
 export default async function KnowledgePage({
