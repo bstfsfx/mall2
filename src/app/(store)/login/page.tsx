@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import styles from './page.module.css';
@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,7 +25,8 @@ export default function LoginPage() {
       if (res.error) {
         setError(res.error === 'Invalid login credentials' ? '電子信箱或密碼錯誤' : res.error);
       } else {
-        router.push('/');
+        const redirect = searchParams.get('redirect') ?? '/';
+        router.push(redirect);
         router.refresh();
       }
     } catch (err) {
