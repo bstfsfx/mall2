@@ -1,0 +1,70 @@
+.section {
+  padding: 5rem 0;
+}
+
+.sectionTop {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 1100px) { .productsGrid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .productsGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .productsGrid { grid-template-columns: 1fr; } }
+
+.emptyProducts {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* Value Props */
+.valueSection {
+  padding: 4rem 0 5rem;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.valueGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+.valueCard {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.valueIcon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.valueTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.valueDesc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 900px)  { .valueGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .valueGrid { grid-template-columns: 1fr; } }

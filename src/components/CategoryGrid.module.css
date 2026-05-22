@@ -1,0 +1,73 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all 0.3s var(--ease);
+  animation: fadeInUp 0.5s ease both;
+}
+
+.card:hover {
+  border-color: var(--border);
+  background: var(--bg-hover);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(201, 168, 76, 0.12), 0 0 0 1px rgba(201,168,76,0.2);
+}
+
+.card:hover .glow {
+  opacity: 1;
+  transform: scale(1.4);
+}
+
+.iconWrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.2) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  transition: color 0.3s;
+  text-align: center;
+}
+
+.card:hover .label {
+  color: var(--gold-light);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 640px)  { .grid { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; } }
+@media (max-width: 380px)  { .grid { grid-template-columns: repeat(2, 1fr); } }

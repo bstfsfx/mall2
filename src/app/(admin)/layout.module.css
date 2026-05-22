@@ -1,0 +1,166 @@
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #08080c;
+}
+
+.adminWrap {
+  display: flex;
+  min-height: 100vh;
+  color: var(--text-primary);
+}
+
+.sidebar {
+  width: 260px;
+  background: #0e0e15;
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.logoArea {
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.logoText {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adminBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: var(--gold-gradient);
+  color: #1a1200;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+.nav {
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.navLink {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  transition: all var(--duration) var(--ease);
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+
+.navActive {
+  background: rgba(201, 168, 76, 0.12) !important;
+  color: var(--gold-light) !important;
+  font-weight: 600;
+  border-left: 3px solid var(--gold);
+}
+
+.sidebarFooter {
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.email {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.75rem;
+}
+
+.logoutBtn {
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.88rem;
+  border-radius: var(--radius-sm);
+  transition: background var(--duration) var(--ease);
+}
+
+.logoutBtn:hover {
+  background: rgba(248, 113, 113, 0.05);
+}
+
+.main {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #08080c;
+}
+
+.header {
+  height: 70px;
+  background: #0e0e15;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.contentInner {
+  padding: 2rem;
+  flex: 1;
+}
+
+@media (max-width: 992px) {
+  .sidebar {
+    width: 80px;
+  }
+  .logoText span {
+    display: none;
+  }
+  .navLink {
+    text-align: center;
+    font-size: 1.25rem;
+    padding: 0.75rem 0;
+  }
+  .navLink span {
+    display: none;
+  }
+  .main {
+    margin-left: 80px;
+  }
+  .email {
+    display: none;
+  }
+  .logoutBtn {
+    text-align: center;
+  }
+}

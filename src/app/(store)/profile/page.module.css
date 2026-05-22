@@ -1,0 +1,147 @@
+.page {
+  padding: 3rem 0 5rem;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2.5rem;
+}
+
+.sidebar {
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  align-self: flex-start;
+  box-shadow: var(--shadow-card);
+}
+
+.avatarArea {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-full);
+  background: var(--gold-gradient);
+  color: #1a1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.sidebarName {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.sidebarEmail {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navLink {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  transition: all var(--duration) var(--ease);
+  display: block;
+}
+
+.navLink:hover {
+  background: var(--bg-hover);
+  color: var(--gold);
+}
+
+.navActive {
+  background: rgba(201, 168, 76, 0.15);
+  color: var(--gold-light);
+  font-weight: 600;
+  border-left: 3px solid var(--gold);
+}
+
+.logoutBtn {
+  margin-top: 1rem;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.95rem;
+  transition: opacity var(--duration) var(--ease);
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.logoutBtn:hover {
+  background: rgba(248, 113, 113, 0.05);
+}
+
+.content {
+  border-radius: var(--radius-lg);
+  padding: 3rem;
+  box-shadow: var(--shadow-card);
+}
+
+.sectionHeader {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.success {
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid var(--success);
+  color: var(--success);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 2rem 1.5rem;
+  }
+}

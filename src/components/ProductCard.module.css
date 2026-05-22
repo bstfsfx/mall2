@@ -1,0 +1,113 @@
+.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  animation: fadeInUp 0.5s ease both;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--border);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-gold);
+}
+
+/* Image */
+.imageWrap {
+  position: relative;
+  width: 100%;
+  padding-top: 130%;
+  overflow: hidden;
+  background: var(--bg-hover);
+}
+
+.imagePlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
+}
+
+/* Hover Overlay */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,15,0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 1.25rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover .overlay { opacity: 1; }
+
+.addBtn {
+  background: var(--gold-gradient);
+  color: #1a1200;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  transform: translateY(12px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.4);
+}
+
+.card:hover .addBtn { transform: translateY(0); }
+.addBtn:hover { box-shadow: 0 8px 30px rgba(201,168,76,0.6); }
+
+.soldOut {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(10,10,15,0.8);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  letter-spacing: 0.06em;
+}
+
+/* Info */
+.info {
+  padding: 1rem 1rem 1.25rem;
+}
+
+.name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.price {
+  font-size: 1rem;
+  font-weight: 800;
+  background: var(--gold-text-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
