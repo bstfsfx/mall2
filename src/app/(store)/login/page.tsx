@@ -6,11 +6,18 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import styles from './page.module.css';
 
+const DEV_USERS = [
+  { email: 'test@mall2.com', password: 'test1234', role: '👤 USER', roleColor: '#6b7280', label: '測試用戶' },
+  { email: 'user1@mall2.com', password: 'user11234', role: '👤 USER', roleColor: '#6b7280', label: '一般會員 1' },
+  { email: 'user2@mall2.com', password: 'user21234', role: '👤 USER', roleColor: '#6b7280', label: '一般會員 2' },
+];
+
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showDev, setShowDev] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn } = useAuth();
@@ -19,7 +26,6 @@ function LoginForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
     try {
       const res = await signIn(email, password);
       if (res.error) {
@@ -33,6 +39,22 @@ function LoginForm() {
       setError('登入時發生錯誤，請稍後再試');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const quickLogin = async (e: string, p: string) => {
+    setEmail(e);
+    setPassword(p);
+    setLoading(true);
+    setError(null);
+    const res = await signIn(e, p);
+    if (res.error) {
+      setError(res.error === 'Invalid login credentials' ? '電子信箱或密碼錯誤' : res.error);
+      setLoading(false);
+    } else {
+      const redirect = searchParams.get('redirect') ?? '/';
+      router.push(redirect);
+      router.refresh();
     }
   };
 
@@ -81,6 +103,40 @@ function LoginForm() {
 
           <div className={styles.footer}>
             <p>還沒有帳號？ <Link href="/signup" className={styles.link}>立即註冊</Link></p>
+          </div>
+
+          {/* DEV ONLY quick login panel */}
+          <div className={styles.devPanel}>
+            <button className={styles.devToggle} onClick={() => setShowDev(v => !v)}>
+              🔧 開發者快速登入 {showDev ? '▲' : '▼'}
+            </button>
+            {showDev && (
+              <div className={styles.devContent}>
+                <p className={styles.devWarning}>⚠️ 此面板僅在開發環境顯示，請勿於正式環境使用</p>
+                <div className={styles.devUserList}>
+                  {DEV_USERS.map(u => (
+                    <div key={u.email} className={styles.devUserItem}>
+                      <div className={styles.devUserInfo}>
+                        <span className={styles.devUserEmail}>{u.email}</span>
+                        <span className={styles.devUserRole} style={{ color: u.roleColor }}>{u.role}</span>
+                      </div>
+                      <div className={styles.devUserMeta}>
+                        <span>{u.label}</span>
+                        <span style={{ fontFamily: 'monospace' }}>{u.password}</span>
+                      </div>
+                      <button
+                        className="btn btn-outline btn-sm"
+                        style={{ fontSize: '0.78rem', padding: '4px 12px' }}
+                        onClick={() => quickLogin(u.email, u.password)}
+                        disabled={loading}
+                      >
+                        登入
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
