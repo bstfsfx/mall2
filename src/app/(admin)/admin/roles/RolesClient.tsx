@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import styles from './page.module.css';
 
-type Permission = { id: string; slug: string; label: string; category: string };
+type Permission = { id: string; slug: string; label: string; description: string | null; category: string };
 type Role = { id: string; label: string; description: string | null; color: string; is_active: boolean; permissions: Permission[] };
 
 const CATEGORY_LABELS: Record<string, string> = {
