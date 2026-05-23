@@ -9,7 +9,7 @@ interface SiteSettings {
   logo_url: string | null;
   hero_title: string;
   hero_subtitle: string;
-  hero_banners: string[];
+  hero_banners: { url: string; alt?: string }[];
   
   // Logistics
   blackcat_fee: number;
@@ -44,7 +44,7 @@ export default function AdminSettings() {
   const [logoUrl, setLogoUrl] = useState('');
   const [heroTitle, setHeroTitle] = useState('');
   const [heroSubtitle, setHeroSubtitle] = useState('');
-  const [banners, setBanners] = useState<string[]>([]);
+  const [banners, setBanners] = useState<{ url: string; alt?: string }[]>([]);
   const [newBannerUrl, setNewBannerUrl] = useState('');
 
   // Logistics states
@@ -168,7 +168,7 @@ export default function AdminSettings() {
         .from('site_assets')
         .getPublicUrl(filePath);
 
-      setBanners(prev => [...prev, publicUrl]);
+      setBanners(prev => [...prev, { url: publicUrl, alt: '' }]);
       setSuccess('Banner 上傳成功 (點擊儲存以套用變更)');
     } catch (err: any) {
       console.error(err);
@@ -180,7 +180,7 @@ export default function AdminSettings() {
 
   const handleAddBannerUrl = () => {
     if (!newBannerUrl.trim()) return;
-    setBanners(prev => [...prev, newBannerUrl.trim()]);
+    setBanners(prev => [...prev, { url: newBannerUrl.trim(), alt: '' }]);
     setNewBannerUrl('');
   };
 
@@ -400,14 +400,14 @@ export default function AdminSettings() {
                   <p className={styles.noBanners}>目前尚未設定任何輪播圖，首頁將顯示預設深色背景。</p>
                 ) : (
                   <div className={styles.bannerGrid}>
-                    {banners.map((url, idx) => (
+                    {banners.map((banner, idx) => (
                       <div key={idx} className={styles.bannerItem}>
                         <div className={styles.bannerThumb}>
-                          <img src={url} alt={`Banner ${idx + 1}`} />
+                          <img src={banner.url} alt={banner.alt || `Banner ${idx + 1}`} />
                           <div className={styles.bannerBadge}>#{idx + 1}</div>
                         </div>
                         <div className={styles.bannerInfo}>
-                          <p className={styles.bannerUrlText} title={url}>{url}</p>
+                          <p className={styles.bannerUrlText} title={banner.url}>{banner.url}</p>
                           <div className={styles.bannerActions}>
                             <button
                               type="button"
