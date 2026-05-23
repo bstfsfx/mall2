@@ -55,6 +55,53 @@ export default async function HomePage() {
       {/* Gold Divider */}
       <div className="container"><hr className="gold-divider" /></div>
 
+      {/* Brand Story */}
+      <section className={styles.brandSection}>
+        <div className="container">
+          <div className={styles.brandInner}>
+            <div className={styles.brandText}>
+              <p className="section-eyebrow">Our Story</p>
+              <h2 className={styles.brandTitle}>關於 MALL²</h2>
+              <p className={styles.brandLead}>
+                MALL² 成立於 2020 年，是一個扎根於台北的獨立服飾平台。
+                我們相信穿著不只是表面的打扮，而是自我表達最直接的方式。
+              </p>
+              <p className={styles.brandBody}>
+                從選料到版型，每一個環節都由團隊親自把關。我們與小型工廠合作，支持在地製造，
+                並嚴選具有環保意識的供應商。每一件單品在正式上架前，都經過多次穿著測試與修改，
+                確保品質經得起時間考驗。
+              </p>
+              <p className={styles.brandBody}>
+                我們不追逐快速的流行週期，只專注於經得起時間的單品。
+                MALL² 的名字代表著多元與可能——兩個人，兩種風格，無限組合。
+              </p>
+              <div className={styles.brandStats}>
+                <div className={styles.brandStat}>
+                  <span className={styles.statNum}>6+</span>
+                  <span className={styles.statLabel}>年在地經營</span>
+                </div>
+                <div className={styles.brandStat}>
+                  <span className={styles.statNum}>200+</span>
+                  <span className={styles.statLabel}>精選單品</span>
+                </div>
+                <div className={styles.brandStat}>
+                  <span className={styles.statNum}>15K+</span>
+                  <span className={styles.statLabel}>滿意顧客</span>
+                </div>
+              </div>
+            </div>
+            <div className={styles.brandVisual}>
+              <div className={styles.brandImageWrap}>
+                <div className={styles.brandImagePlaceholder}>
+                  <span>🏷️</span>
+                  <p>在地製造 · 嚴選品質</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* New Arrivals */}
       <section className={styles.section}>
         <div className="container">
