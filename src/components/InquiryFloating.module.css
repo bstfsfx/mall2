@@ -1,0 +1,144 @@
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #c9a96e, #a07840);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(192, 152, 72, 0.4);
+  z-index: 998;
+  transition: all 0.3s ease;
+}
+
+.fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(192, 152, 72, 0.5);
+  background: linear-gradient(135deg, #d4b579, #a8874f);
+}
+
+.fabIcon {
+  font-size: 1.2rem;
+}
+
+.fabLabel {
+  font-size: 0.88rem;
+}
+
+@media (max-width: 640px) {
+  .fab {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.82rem;
+  }
+
+  .fabLabel {
+    display: none;
+  }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.drawer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 420px;
+  max-width: 100%;
+  max-height: 85vh;
+  background: var(--bg-primary);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.drawerOpen {
+  transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .drawer {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    border-radius: 16px;
+    max-height: 80vh;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(calc(100% + 1.5rem));
+  }
+
+  .drawerOpen {
+    transform: translateY(0);
+  }
+}
+
+.drawerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg, rgba(201, 169, 110, 0.08), rgba(160, 120, 64, 0.05));
+}
+
+.drawerHeader h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 0.25rem;
+}
+
+.drawerHeader p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.closeBtn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.drawerBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}

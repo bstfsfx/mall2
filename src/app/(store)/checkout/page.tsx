@@ -60,6 +60,19 @@ export default function CheckoutPage() {
     ecpay_merchant_id: '2000132'
   });
 
+  // Discount code state
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    name: string;
+    type: 'percentage' | 'fixed_amount' | 'free_shipping';
+    value: number;
+    label: string;
+    amount: number;
+  } | null>(null);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const [validatingDiscount, setValidatingDiscount] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
@@ -69,6 +82,77 @@ export default function CheckoutPage() {
     payment: string;
     shipping: string;
   } | null>(null);
+
+  // Discount code handlers
+  const applyDiscountCode = async () => {
+    if (!discountCode.trim()) return;
+    setDiscountError(null);
+    setValidatingDiscount(true);
+    try {
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .select('*')
+        .eq('code', discountCode.trim().toUpperCase())
+        .eq('is_active', true)
+        .single();
+
+      if (error || !data) {
+        setDiscountError('⚠️ 折扣碼不存在或已停用');
+        setAppliedDiscount(null);
+        return;
+      }
+
+      const now = new Date();
+      const start = new Date(data.start_date);
+      const end = data.end_date ? new Date(data.end_date) : null;
+
+      if (start > now) {
+        setDiscountError(`⏰ 此折扣碼尚未開始，有效時間：${start.toLocaleDateString('zh-TW')}`);
+        setAppliedDiscount(null);
+        return;
+      }
+      if (end && end < now) {
+        setDiscountError('❌ 此折扣碼已過期');
+        setAppliedDiscount(null);
+        return;
+      }
+      if (data.max_uses && data.used_count >= data.max_uses) {
+        setDiscountError('🚫 此折扣碼已使用完畢');
+        setAppliedDiscount(null);
+        return;
+      }
+      if (data.min_order_amount && total < data.min_order_amount) {
+        setDiscountError(`💰 最低消費 NT$ ${data.min_order_amount} 才能使用此折扣碼`);
+        setAppliedDiscount(null);
+        return;
+      }
+
+      let amount = 0;
+      let label = '';
+      if (data.discount_type === 'percentage') {
+        amount = (total * Number(data.discount_value)) / 100;
+        label = `-${data.discount_value}%`;
+      } else if (data.discount_type === 'fixed_amount') {
+        amount = Number(data.discount_value);
+        label = `-NT$ ${data.discount_value}`;
+      } else {
+        label = '免運費';
+      }
+
+      setAppliedDiscount({ code: data.code, name: data.name, type: data.discount_type, value: Number(data.discount_value), label, amount });
+      setDiscountError(null);
+    } catch {
+      setDiscountError('⚠️ 折扣碼驗證失敗，請稍後再試');
+    } finally {
+      setValidatingDiscount(false);
+    }
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode('');
+    setDiscountError(null);
+  };
 
   // Fetch standard logistics and payment settings
   useEffect(() => {
@@ -92,8 +176,7 @@ export default function CheckoutPage() {
             bank_recipient: data.bank_recipient ?? '摩爾時尚股份有限公司',
             ecpay_merchant_id: data.ecpay_merchant_id ?? '2000132'
           });
-          
-          // Auto fallbacks if one shipping option is disabled
+
           if (data.blackcat_enabled === false && data.hsinchu_enabled !== false) {
             setShippingMethod('hsinchu');
           }
@@ -147,8 +230,15 @@ export default function CheckoutPage() {
     : shippingMethod === 'blackcat'
       ? settings.blackcat_fee
       : settings.hsinchu_fee;
-  
+
+  // Used in order creation (grandTotal = items + shipping before discount)
   const grandTotal = total + activeShippingFee;
+
+  // Discount calculations
+  const discountShipping = appliedDiscount?.type === 'free_shipping';
+  const effectiveShippingFee = discountShipping ? 0 : activeShippingFee;
+  const discountAmount = appliedDiscount?.amount ?? 0;
+  const finalTotal = Math.max(0, grandTotal - discountAmount);
 
   // Checkout submission handler
   const handleCheckoutSubmit = async (e?: React.FormEvent, isECPayPaid = false) => {
@@ -162,14 +252,16 @@ export default function CheckoutPage() {
         .from('orders')
         .insert({
           user_id: user.id,
-          total_amount: grandTotal,
+          total_amount: finalTotal,
           shipping_address: `${name} | ${phone} | ${address}`,
           status: isECPayPaid ? 'paid' : 'pending',
           shipping_method: shippingMethod,
-          shipping_fee: activeShippingFee,
+          shipping_fee: effectiveShippingFee,
           payment_method: paymentMethod,
           payment_status: isECPayPaid ? 'paid' : 'unpaid',
           shipping_status: 'pending',
+          discount_code: appliedDiscount?.code ?? null,
+          discount_amount: discountAmount,
           payment_details: isECPayPaid ? { ecpay_auth: 'MOCK-ECPAY-SUCCESS', card: cardNumber.slice(-4) } : {}
         })
         .select()
@@ -208,11 +300,16 @@ export default function CheckoutPage() {
         }
       }));
 
-      // 4. Success details
+      // 4. Increment discount code usage count
+      if (appliedDiscount) {
+        await supabase.rpc('increment_discount_used_count', { code: appliedDiscount.code });
+      }
+
+      // 5. Success details
       setSuccessOrderId(order.id);
       setSuccessDetails({
         orderId: order.id,
-        total: grandTotal,
+        total: finalTotal,
         payment: paymentMethod === 'bank_transfer' ? '銀行轉帳/匯款' : '綠界線上信用卡',
         shipping: shippingMethod === 'blackcat' ? '黑貓宅急便' : '新竹貨運'
       });
@@ -430,8 +527,43 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Discount Code Section */}
+            <div style={{ marginTop: '1rem' }}>
+              <h2>🎫 折扣碼優惠</h2>
+              <hr className="gold-divider" style={{ margin: '1rem 0 1.5rem' }} />
+              {appliedDiscount ? (
+                <div className={styles.discountAppliedCard}>
+                  <div className={styles.discountAppliedLeft}>
+                    <span className={styles.discountAppliedBadge}>✓ 已套用</span>
+                    <span className={styles.discountAppliedCode}>{appliedDiscount.code}</span>
+                    <span className={styles.discountAppliedName}>{appliedDiscount.name}</span>
+                  </div>
+                  <button className={styles.discountRemoveBtn} onClick={removeDiscount}>✕ 移除</button>
+                </div>
+              ) : (
+                <div className={styles.discountInputRow}>
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="輸入折扣碼 (例如: SUMMER20)"
+                    value={discountCode}
+                    onChange={e => { setDiscountCode(e.target.value.toUpperCase()); setDiscountError(null); }}
+                    style={{ flex: 1, fontFamily: 'monospace', letterSpacing: '0.05em' }}
+                  />
+                  <button
+                    className="btn btn-gold"
+                    onClick={applyDiscountCode}
+                    disabled={validatingDiscount || !discountCode.trim()}
+                  >
+                    {validatingDiscount ? '驗證中...' : '套用'}
+                  </button>
+                </div>
+              )}
+              {discountError && <div className={styles.discountError}>{discountError}</div>}
+            </div>
+
             <button type="submit" className="btn btn-gold" style={{ width: '100%', marginTop: '1.5rem' }} disabled={submitting}>
-              {submitting ? '正送出訂單...' : `確認付款並送出訂單 (NT$ ${grandTotal.toLocaleString()})`}
+              {submitting ? '正送出訂單...' : `確認付款並送出訂單 (NT$ ${finalTotal.toLocaleString()})`}
             </button>
           </form>
 
@@ -467,23 +599,28 @@ export default function CheckoutPage() {
                 <span>NT$ {total.toLocaleString()}</span>
               </div>
               <div className={styles.summaryRow}>
-                <span>物流運費 ({shippingMethod === 'blackcat' ? '黑貓' : '新竹'})</span>
-                <span className={isFreeShipping ? styles.freeShipping : ''}>
-                  {isFreeShipping ? '免運費' : `NT$ ${activeShippingFee}`}
+                <span>物流 ({shippingMethod === 'blackcat' ? '黑貓' : '新竹'})</span>
+                <span className={discountShipping ? styles.freeShipping : ''}>
+                  {discountShipping ? '免費' : effectiveShippingFee === 0 ? '免運' : `NT$ ${effectiveShippingFee}`}
                 </span>
               </div>
-              
-              {/* Free shipping progress notice */}
+              {appliedDiscount && (
+                <div className={styles.summaryRow} style={{ color: 'var(--success)' }}>
+                  <span>折扣 ({appliedDiscount.code})</span>
+                  <span>-NT$ {discountAmount.toLocaleString()}</span>
+                </div>
+              )}
+
               {!isFreeShipping && (
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right', marginTop: '-0.25rem' }}>
-                  💡 再買 NT$ {(settings.free_shipping_threshold - total).toLocaleString()} 即享免運優惠！
+                  💡 再買 NT$ {(settings.free_shipping_threshold - total).toLocaleString()} 即享免運！
                 </p>
               )}
 
               <hr className="gold-divider" style={{ opacity: 0.3, margin: '1rem 0' }} />
               <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
-                <span>總計金額</span>
-                <span>NT$ {grandTotal.toLocaleString()}</span>
+                <span>實收金額</span>
+                <span>NT$ {finalTotal.toLocaleString()}</span>
               </div>
             </div>
           </aside>

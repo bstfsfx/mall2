@@ -400,7 +400,7 @@ export default function AdminOrders() {
                   ))}
                 </div>
                 <hr style={{ border: 'none', borderTop: '1px dashed var(--border-subtle)', margin: '1rem 0' }} />
-                <div style={{ display: 'flex', justifycontent: 'space-between', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <strong>應付總額 (含運費)</strong>
                   <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>
                     NT$ {Number(selectedOrder.total_amount).toLocaleString()}

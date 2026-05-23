@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import CartDrawer from '@/components/CartDrawer';
 import Footer from '@/components/Footer';
+import InquiryFloating from '@/components/InquiryFloating';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 
@@ -39,6 +40,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         <CartDrawer />
         <main style={{ paddingTop: '72px' }}>{children}</main>
         <Footer />
+        <InquiryFloating />
       </CartProvider>
     </AuthProvider>
   );

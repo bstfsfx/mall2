@@ -15,15 +15,18 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Skip auth check for admin auth login route
+  const isAdminAuthRoute = pathname.startsWith('/admin/auth');
+
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push('/login?redirect=/admin');
-      } else if (!isAdmin) {
-        router.push('/');
-      }
+    if (loading) return;
+    if (isAdminAuthRoute) return;
+    if (!user) {
+      router.push('/admin/auth/login?redirect=/admin');
+    } else if (!isAdmin) {
+      router.push('/');
     }
-  }, [user, loading, isAdmin, router]);
+  }, [user, loading, isAdmin, router, isAdminAuthRoute]);
 
   if (loading) {
     return (
@@ -31,6 +34,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         <div className="spinner" />
       </div>
     );
+  }
+
+  // Show auth page without admin sidebar
+  if (isAdminAuthRoute) {
+    return <>{children}</>;
   }
 
   if (!user || !isAdmin) {

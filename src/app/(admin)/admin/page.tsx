@@ -88,20 +88,20 @@ export default function AdminDashboard() {
           const amt = Number(o.total_amount) || 0;
           
           // Payment aggregation
-          const payMethod = (o.payment_method === 'bank_transfer' || o.payment_method === 'ecpay') 
-            ? o.payment_method 
-            : 'cod';
-          
+          const payMethod = ((o.payment_method === 'bank_transfer' || o.payment_method === 'ecpay')
+            ? o.payment_method
+            : 'cod') as keyof typeof paymentStats;
+
           paymentStats[payMethod].count += 1;
           if (!isCancelled) {
             paymentStats[payMethod].total += amt;
           }
 
           // Logistics aggregation
-          const shipMethod = (o.shipping_method === 'blackcat' || o.shipping_method === 'hsinchu')
+          const shipMethod = ((o.shipping_method === 'blackcat' || o.shipping_method === 'hsinchu')
             ? o.shipping_method
-            : 'none';
-          
+            : 'none') as keyof typeof logisticsStats;
+
           logisticsStats[shipMethod].count += 1;
           if (!isCancelled) {
             logisticsStats[shipMethod].total += amt;
