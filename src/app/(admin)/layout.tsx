@@ -134,12 +134,8 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-TW" className={geistSans.variable}>
-      <body style={{ background: '#08080c' }}>
-        <AuthProvider>
-          <AdminLayoutContent>{children}</AdminLayoutContent>
-        </AuthProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </AuthProvider>
   );
 }
