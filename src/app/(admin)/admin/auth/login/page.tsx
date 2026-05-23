@@ -50,10 +50,12 @@ function AdminLoginForm() {
       if (res.error) {
         setError(res.error === 'Invalid login credentials' ? '電子信箱或密碼錯誤' : res.error);
       } else {
+        // Wait for session to be established before redirecting
+        await new Promise(resolve => setTimeout(resolve, 500));
         const rawRedirect = searchParams.get('redirect');
         const redirect = rawRedirect ?? '/admin';
-        router.push(redirect);
-        router.refresh();
+        // Use window.location for full page reload to ensure server-side auth picks up the session
+        window.location.href = redirect;
       }
     } catch {
       setError('發生錯誤，請稍後再試');
@@ -72,10 +74,12 @@ function AdminLoginForm() {
       setError(res.error === 'Invalid login credentials' ? '電子信箱或密碼錯誤' : res.error);
       setLoading(false);
     } else {
+      // Wait for session to be established before redirecting
+      await new Promise(resolve => setTimeout(resolve, 500));
       const rawRedirect = searchParams.get('redirect');
       const redirect = rawRedirect ?? '/admin';
-      router.push(redirect);
-      router.refresh();
+      // Use window.location for full page reload to ensure server-side auth picks up the session
+      window.location.href = redirect;
     }
   };
 

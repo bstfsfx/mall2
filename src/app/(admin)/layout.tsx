@@ -86,7 +86,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       items: [
         { href: '/admin/settings', label: '⚙️ 系統設定' },
         { href: '/admin/users', label: '👥 使用者' },
-        { href: '/admin/roles', label: '🔐 角色 / 權限' },
         { href: '/admin/logs', label: '📋 操作紀錄' },
       ],
     },
