@@ -243,3 +243,214 @@
     flex-direction: column;
   }
 }
+
+/* Checkout options additions */
+.optionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 640px) {
+  .optionsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.optionCard {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.01);
+  transition: all var(--duration) var(--ease);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+}
+
+.optionCard:hover {
+  border-color: var(--gold-dark);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.optionCardActive {
+  border-color: var(--gold) !important;
+  background: rgba(201, 168, 76, 0.05) !important;
+  box-shadow: 0 0 15px rgba(201, 168, 76, 0.1);
+}
+
+.optionCardTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.optionCardPrice {
+  font-size: 0.85rem;
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.optionCardDesc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Bank Details Card */
+.bankCard {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(201, 168, 76, 0.04);
+  text-align: left;
+}
+
+.bankCard h3 {
+  font-size: 1.05rem;
+  color: var(--gold-light);
+  margin-bottom: 1rem;
+}
+
+.bankRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.bankRow span:first-child {
+  color: var(--text-secondary);
+}
+
+.bankRow span:last-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ECPay Modal Overlay & Card */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.ecpayCard {
+  width: 100%;
+  max-width: 460px;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card), 0 0 40px rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  background: #111118;
+}
+
+.ecpayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.ecpayLogo {
+  color: #34d399;
+  font-weight: 900;
+  font-size: 1.5rem;
+}
+
+.ecpayBadge {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.ecpayRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.ecpayRow strong {
+  color: var(--text-primary);
+}
+
+.ecpayFormGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.ecpayFormGroup label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+}
+
+.ecpayFormRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.ecpaySubmitBtn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  width: 100%;
+  border-radius: var(--radius-full);
+  padding: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  margin-top: 1rem;
+  cursor: pointer;
+  border: none;
+  font-size: 0.95rem;
+  transition: all var(--duration) var(--ease);
+}
+
+.ecpaySubmitBtn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
+.ecpaySubmitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ecpayCancelBtn {
+  background: transparent;
+  color: var(--text-secondary);
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  margin-top: 0.75rem;
+  transition: all var(--duration) var(--ease);
+}
+
+.ecpayCancelBtn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--text-muted);
+}
+

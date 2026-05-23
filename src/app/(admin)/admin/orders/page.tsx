@@ -20,9 +20,19 @@ interface Order {
   total_amount: number;
   shipping_address: string | null;
   created_at: string;
+  
+  // Logistics & Payments fields
+  shipping_method: 'blackcat' | 'hsinchu' | null;
+  shipping_fee: number;
+  payment_method: 'bank_transfer' | 'ecpay' | null;
+  payment_status: 'unpaid' | 'paid' | 'refunding' | 'refunded';
+  shipping_status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  tracking_number: string | null;
+  payment_details: any;
+
   profiles: {
     name: string | null;
-    email: string | null;
+    id: string;
   } | null;
   order_items: OrderItem[];
 }
@@ -38,6 +48,9 @@ export default function AdminOrders() {
   // Modal state
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
+  // Editing tracking number state inside modal
+  const [editTrackingNum, setEditTrackingNum] = useState('');
+
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
@@ -50,6 +63,13 @@ export default function AdminOrders() {
           total_amount,
           shipping_address,
           created_at,
+          shipping_method,
+          shipping_fee,
+          payment_method,
+          payment_status,
+          shipping_status,
+          tracking_number,
+          payment_details,
           profiles (
             name,
             id
@@ -81,30 +101,48 @@ export default function AdminOrders() {
     fetchOrders();
   }, []);
 
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
+  // Update specific fields of an order
+  const handleUpdateOrderDetails = async (
+    orderId: string,
+    updates: {
+      status?: string;
+      payment_status?: string;
+      shipping_status?: string;
+      tracking_number?: string | null;
+    }
+  ) => {
     try {
       const { error: updateErr } = await supabase
         .from('orders')
-        .update({ status: newStatus })
+        .update(updates)
         .eq('id', orderId);
 
       if (updateErr) throw updateErr;
 
       // Update local state
       setOrders(prev =>
-        prev.map(o => (o.id === orderId ? { ...o, status: newStatus as any } : o))
+        prev.map(o => (o.id === orderId ? { ...o, ...updates } as any : o))
       );
       
       // Update selected order if open
       if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status: newStatus as any });
+        setSelectedOrder({ ...selectedOrder, ...updates } as any);
       }
       
     } catch (err: any) {
       console.error(err);
-      alert(`更新狀態失敗: ${err.message}`);
+      alert(`更新失敗: ${err.message}`);
     }
   };
+
+  // Pre-fill tracking number when selectedOrder is opened
+  useEffect(() => {
+    if (selectedOrder) {
+      setEditTrackingNum(selectedOrder.tracking_number ?? '');
+    } else {
+      setEditTrackingNum('');
+    }
+  }, [selectedOrder]);
 
   const filteredOrders = statusFilter === 'all'
     ? orders
@@ -120,6 +158,34 @@ export default function AdminOrders() {
       case 'cancelled': return styles.statusCancelled;
       default: return '';
     }
+  };
+
+  const getLogisticsText = (method: string | null) => {
+    if (method === 'blackcat') return '🐈 黑貓宅急便';
+    if (method === 'hsinchu') return '🚛 新竹貨運';
+    return '無指定';
+  };
+
+  const getPaymentText = (method: string | null) => {
+    if (method === 'bank_transfer') return '🏦 銀行轉帳';
+    if (method === 'ecpay') return '🛡️ 綠界信用卡';
+    return '貨到付款';
+  };
+
+  const getPaymentStatusText = (status: string) => {
+    if (status === 'paid') return '🟢 已付款';
+    if (status === 'unpaid') return '🔴 未付款';
+    if (status === 'refunding') return '🟡 退款中';
+    if (status === 'refunded') return '⚪ 已退款';
+    return '🔴 未付款';
+  };
+
+  const getShippingStatusText = (status: string) => {
+    if (status === 'pending') return '⏳ 準備中';
+    if (status === 'processing') return '📦 處理中';
+    if (status === 'shipped') return '🚚 已出貨';
+    if (status === 'delivered') return '✅ 已送達';
+    return '⏳ 準備中';
   };
 
   return (
@@ -168,8 +234,9 @@ export default function AdminOrders() {
                   <th>訂單編號</th>
                   <th>訂購日期</th>
                   <th>收件人姓名</th>
-                  <th>應付總額</th>
-                  <th>付款方式</th>
+                  <th>應付金額</th>
+                  <th>金流方式</th>
+                  <th>物流方案</th>
                   <th>訂單狀態</th>
                   <th>管理操作</th>
                 </tr>
@@ -185,7 +252,8 @@ export default function AdminOrders() {
                       <td><span className={styles.dateText}>{formattedDate}</span></td>
                       <td>{order.profiles?.name ?? 'Test User'}</td>
                       <td><span className={styles.amountText}>NT$ {Number(order.total_amount).toLocaleString()}</span></td>
-                      <td><span className={styles.paymentText}>貨到付款</span></td>
+                      <td><span className={styles.paymentText}>{getPaymentText(order.payment_method)}</span></td>
+                      <td><span className={styles.paymentText}>{getLogisticsText(order.shipping_method)}</span></td>
                       <td>
                         <span className={`${styles.statusBadge} ${getStatusBadgeClass(order.status)}`}>
                           {order.status.toUpperCase()}
@@ -208,41 +276,113 @@ export default function AdminOrders() {
       {/* Order Detail Modal */}
       {selectedOrder && (
         <div className={styles.modalOverlay} onClick={() => setSelectedOrder(null)}>
-          <div className={`glass ${styles.formCard}`} onClick={e => e.stopPropagation()}>
+          <div className={`glass ${styles.formCard}`} onClick={e => e.stopPropagation()} style={{ maxWidth: '640px' }}>
             <div className={styles.formHeader}>
               <h3>📝 訂單詳情 (VIBE-{selectedOrder.id.split('-')[0].toUpperCase()})</h3>
               <button className={styles.closeModal} onClick={() => setSelectedOrder(null)}>✕</button>
             </div>
             <hr className="gold-divider" style={{ margin: '1rem 0' }} />
             
-            <div className={styles.orderDetailSection}>
-              <h4>變更訂單狀態</h4>
-              <select
-                value={selectedOrder.status}
-                onChange={e => handleStatusChange(selectedOrder.id, e.target.value)}
-                className={styles.select}
-              >
-                <option value="pending">待付款 (PENDING)</option>
-                <option value="paid">已付款 (PAID)</option>
-                <option value="processing">處理中 (PROCESSING)</option>
-                <option value="shipped">已出貨 (SHIPPED)</option>
-                <option value="completed">已完成 (COMPLETED)</option>
-                <option value="cancelled">已取消 (CANCELLED)</option>
-              </select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+              {/* Order Status Column */}
+              <div className={styles.orderDetailSection}>
+                <h4>⚙️ 變更訂單狀態</h4>
+                <div className={styles.formGroup} style={{ marginBottom: '0.75rem' }}>
+                  <label>主訂單狀態</label>
+                  <select
+                    value={selectedOrder.status}
+                    onChange={e => handleUpdateOrderDetails(selectedOrder.id, { status: e.target.value })}
+                    className={styles.select}
+                  >
+                    <option value="pending">待付款 (PENDING)</option>
+                    <option value="paid">已付款 (PAID)</option>
+                    <option value="processing">處理中 (PROCESSING)</option>
+                    <option value="shipped">已出貨 (SHIPPED)</option>
+                    <option value="completed">已完成 (COMPLETED)</option>
+                    <option value="cancelled">已取消 (CANCELLED)</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup} style={{ marginBottom: '0.75rem' }}>
+                  <label>金流收款狀態 ({getPaymentStatusText(selectedOrder.payment_status)})</label>
+                  <select
+                    value={selectedOrder.payment_status || 'unpaid'}
+                    onChange={e => handleUpdateOrderDetails(selectedOrder.id, { payment_status: e.target.value })}
+                    className={styles.select}
+                  >
+                    <option value="unpaid">🔴 未付款 (UNPAID)</option>
+                    <option value="paid">🟢 已付款 (PAID)</option>
+                    <option value="refunding">🟡 退款中 (REFUNDING)</option>
+                    <option value="refunded">⚪ 已退款 (REFUNDED)</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>物流出貨狀態 ({getShippingStatusText(selectedOrder.shipping_status)})</label>
+                  <select
+                    value={selectedOrder.shipping_status || 'pending'}
+                    onChange={e => handleUpdateOrderDetails(selectedOrder.id, { shipping_status: e.target.value })}
+                    className={styles.select}
+                  >
+                    <option value="pending">⏳ 準備中 (PENDING)</option>
+                    <option value="processing">📦 處理中 (PROCESSING)</option>
+                    <option value="shipped">🚚 已出貨 (SHIPPED)</option>
+                    <option value="delivered">✅ 已送達 (DELIVERED)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Logistics & Tracking Column */}
+              <div className={styles.orderDetailSection}>
+                <h4>📦 物流單號管理</h4>
+                
+                <div className={styles.formGroup} style={{ marginBottom: '1rem' }}>
+                  <label>物流方式</label>
+                  <input type="text" className="input" value={getLogisticsText(selectedOrder.shipping_method)} disabled />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="trackingInput">物流配送單號 (Tracking Number)</label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input
+                      id="trackingInput"
+                      type="text"
+                      className="input"
+                      placeholder="請輸入貨運追蹤單號..."
+                      value={editTrackingNum}
+                      onChange={e => setEditTrackingNum(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-gold btn-sm"
+                      onClick={() => handleUpdateOrderDetails(selectedOrder.id, { tracking_number: editTrackingNum || null })}
+                      style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
+                    >
+                      更新
+                    </button>
+                  </div>
+                </div>
+
+                {selectedOrder.tracking_number && (
+                  <p style={{ fontSize: '0.78rem', color: 'var(--success)', marginTop: '0.5rem' }}>
+                    ✅ 已指派單號：<strong style={{ fontFamily: 'monospace' }}>{selectedOrder.tracking_number}</strong>
+                  </p>
+                )}
+              </div>
             </div>
             
-            <div className={styles.orderDetailSection}>
-              <h4>顧客與配送資訊</h4>
+            <div className={styles.orderDetailSection} style={{ marginBottom: '1.5rem' }}>
+              <h4>👤 顧客與收件資訊</h4>
               <div className={styles.infoBlock}>
-                <p><strong>顧客姓名：</strong> {selectedOrder.profiles?.name ?? 'Test User'}</p>
-                <p><strong>下單時間：</strong> {new Date(selectedOrder.created_at).toLocaleString('zh-TW')}</p>
-                <p><strong>付款方式：</strong> 貨到付款</p>
-                <p style={{ marginTop: '0.5rem' }}><strong>配送地址：</strong><br/>{selectedOrder.shipping_address || '無收件人資訊'}</p>
+                <p><strong>收件姓名：</strong> {selectedOrder.profiles?.name ?? '未知'}</p>
+                <p><strong>金流管道：</strong> {getPaymentText(selectedOrder.payment_method)} ({selectedOrder.payment_status?.toUpperCase() || 'UNPAID'})</p>
+                <p><strong>物流費用：</strong> NT$ {Number(selectedOrder.shipping_fee ?? 0).toLocaleString()} 元</p>
+                <p style={{ marginTop: '0.5rem' }}><strong>收件地址：</strong><br/>{selectedOrder.shipping_address || '無收件人資訊'}</p>
               </div>
             </div>
 
-            <div className={styles.orderDetailSection}>
-              <h4>訂購商品清單</h4>
+            <div className={styles.orderDetailSection} style={{ marginBottom: '1rem' }}>
+              <h4>🛍️ 訂購商品明細</h4>
               <div className={styles.infoBlock}>
                 <div className={styles.items}>
                   {selectedOrder.order_items?.map(item => (
@@ -260,8 +400,8 @@ export default function AdminOrders() {
                   ))}
                 </div>
                 <hr style={{ border: 'none', borderTop: '1px dashed var(--border-subtle)', margin: '1rem 0' }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <strong>實收總額</strong>
+                <div style={{ display: 'flex', justifycontent: 'space-between', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <strong>應付總額 (含運費)</strong>
                   <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>
                     NT$ {Number(selectedOrder.total_amount).toLocaleString()}
                   </span>
@@ -270,7 +410,7 @@ export default function AdminOrders() {
             </div>
 
             <button className="btn btn-gold" style={{ width: '100%', marginTop: '1rem' }} onClick={() => setSelectedOrder(null)}>
-              完成
+              確認完成
             </button>
           </div>
         </div>
