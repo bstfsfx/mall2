@@ -50,7 +50,8 @@ function AdminLoginForm() {
       if (res.error) {
         setError(res.error === 'Invalid login credentials' ? '電子信箱或密碼錯誤' : res.error);
       } else {
-        const redirect = searchParams.get('redirect') ?? '/admin';
+        const rawRedirect = searchParams.get('redirect');
+        const redirect = rawRedirect ?? '/admin';
         router.push(redirect);
         router.refresh();
       }
@@ -61,9 +62,21 @@ function AdminLoginForm() {
     }
   };
 
-  const handleDevLogin = (user: DevUser) => {
+  const handleDevLogin = async (user: DevUser) => {
     setEmail(user.email);
     setPassword(user.password);
+    setLoading(true);
+    setError(null);
+    const res = await signIn(user.email, user.password);
+    if (res.error) {
+      setError(res.error === 'Invalid login credentials' ? '電子信箱或密碼錯誤' : res.error);
+      setLoading(false);
+    } else {
+      const rawRedirect = searchParams.get('redirect');
+      const redirect = rawRedirect ?? '/admin';
+      router.push(redirect);
+      router.refresh();
+    }
   };
 
   return (
