@@ -56,7 +56,7 @@ export default async function HomePage() {
       <div className="container"><hr className="gold-divider" /></div>
 
       {/* Brand Story */}
-      <section className={styles.brandSection}>
+      <section id="brand-story" className={styles.brandSection}>
         <div className="container">
           <div className={styles.brandInner}>
             <div className={styles.brandText}>
