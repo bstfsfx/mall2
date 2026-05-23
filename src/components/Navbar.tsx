@@ -58,6 +58,9 @@ export default function Navbar({ logoUrl }: NavbarProps) {
           <Link href="/search" className={styles.iconBtn} aria-label="搜尋">
             <GoldIcons.Search />
           </Link>
+          <Link href="/messages" className={styles.iconBtn} aria-label="客服訊息" title="客服訊息" style={{ fontSize: '1.1rem' }}>
+            💬
+          </Link>
           <Link href="/profile" className={styles.iconBtn} aria-label="會員">
             <GoldIcons.User />
           </Link>
@@ -84,6 +87,7 @@ export default function Navbar({ logoUrl }: NavbarProps) {
         ))}
         <div className={styles.mobileDivider} />
         <Link href="/profile" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>我的帳號</Link>
+        <Link href="/messages" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>💬 客服訊息</Link>
         <Link href="/orders" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>我的訂單</Link>
       </div>
     </nav>
