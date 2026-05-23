@@ -8,7 +8,7 @@ import styles from './page.module.css';
 import Link from 'next/link';
 
 export default function ProfilePage() {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading, signOut, refreshProfile } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState('');
@@ -55,6 +55,7 @@ export default function ProfilePage() {
       if (error) {
         setMsg({ type: 'error', text: error.message });
       } else {
+        await refreshProfile();
         setMsg({ type: 'success', text: '基本資料已成功更新' });
       }
     } catch (err) {
@@ -66,8 +67,6 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     await signOut();
-    router.push('/');
-    router.refresh();
   };
 
   return (
@@ -81,7 +80,7 @@ export default function ProfilePage() {
           {/* Sidebar */}
           <aside className={`glass ${styles.sidebar}`}>
             <div className={styles.avatarArea}>
-              <div className={styles.avatar}>{name.slice(0, 1) || user.email?.slice(0, 1).toUpperCase()}</div>
+              <div className={styles.avatar}>{(name || user.email || 'U').slice(0, 1).toUpperCase()}</div>
               <div>
                 <p className={styles.sidebarName}>{name || '未設定姓名'}</p>
                 <p className={styles.sidebarEmail}>{user.email}</p>

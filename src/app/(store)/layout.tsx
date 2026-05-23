@@ -33,18 +33,13 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   const settings = await getSiteSettings();
 
   return (
-    <html lang="zh-TW" className={geistSans.variable}>
-      <body>
-        <AuthProvider>
-          <CartProvider>
-            <Navbar logoUrl={settings?.logo_url} />
-            <CartDrawer />
-            <main style={{ paddingTop: '72px' }}>{children}</main>
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <CartProvider>
+        <Navbar logoUrl={settings?.logo_url} />
+        <CartDrawer />
+        <main style={{ paddingTop: '72px' }}>{children}</main>
+        <Footer />
+      </CartProvider>
+    </AuthProvider>
   );
 }
-
