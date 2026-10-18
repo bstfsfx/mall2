@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+walkthrough.md
+task.md
+implementation_plan.md
+social-login-setup.md

@@ -23,6 +23,9 @@ interface AuthContextType {
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
+  signInWithLine: () => Promise<{ error: string | null }>;
+  signInWithFacebook: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   csrfFetch: (url: string, options?: RequestInit) => Promise<Response>;
@@ -118,6 +121,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error?.message ?? null };
   };
 
+  /**
+   * Sign in with Google OAuth
+   */
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    return { error: error?.message ?? null };
+  };
+
+  /**
+   * Sign in with LINE OAuth
+   */
+  const signInWithLine = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'line',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    return { error: error?.message ?? null };
+  };
+
+  /**
+   * Sign in with Facebook OAuth
+   */
+  const signInWithFacebook = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    return { error: error?.message ?? null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -134,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user, profile, loading,
       isAdmin: profile?.role === 'admin',
       signIn, signUp, signOut, refreshProfile,
+      signInWithGoogle, signInWithLine, signInWithFacebook,
       csrfFetch,
     }}>
       {children}
